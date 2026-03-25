@@ -1,0 +1,10 @@
+{
+  "dataset_name": "indicadores_aneel",
+  "source": "https://dadosabertos.aneel.gov.br/dataset/d5f0712e-62f6-4736-8dff-9991f10758a7/resource/4493985c-baea-429c-9df5-3030422c71d7/download/indicadores-continuidade-coletivos-2020-2029.csv",
+  "ingestion_timestamp": "2026-03-25T02:22:23.033881+00:00",
+  "file_hash": "9febbbcacc380fd534136bcbf0d46dc25d679add49d32a0a89acf377f1f0dca8",
+  "row_count": 4731822,
+  "column_count": 14,
+  "raw_path": "data/raw/aneel/indicadores_aneel/source_file.csv",
+  "bronze_path": "data/bronze/aneel/indicadores_aneel/dataset.parquet"
+}
