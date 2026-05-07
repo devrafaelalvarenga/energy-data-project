@@ -15,6 +15,9 @@ from energy_data.ingestion.writers.parquet_writer import ParquetWriter
 from energy_data.silver.processor import SilverProcessor
 from energy_data.silver.writer import SilverWriter
 
+from energy_data.gold.processor import GoldProcessor
+
+
 logger = get_logger(__name__)
 
 
@@ -62,6 +65,15 @@ def build_parser() -> argparse.ArgumentParser:
         type=str,
         help="Caminho de saída do parquet Silver.",
     )
+    gold_parser = subparsers.add_parser("gold", help="Processa camada Gold")
+    gold_parser.add_argument(
+        "--silver-path",
+        default="data/silver/aneel/indicadores_aneel/dataset.parquet"
+    )
+    gold_parser.add_argument(
+        "--gold-path",
+        default="data/gold/aneel/indicadores_gold.parquet"
+    )
     return parser
 
 
@@ -98,6 +110,10 @@ def run_silver(bronze_path: str, silver_path: str) -> None:
     print(f"Bronze: {bronze_path}")
     print(f"Silver: {silver_path}")
 
+def run_gold(silver_path: str, gold_path: str) -> None:
+    processor = GoldProcessor()
+    processor.run(silver_path=silver_path, gold_path=gold_path)
+
 def main() -> None:
     """Ponto de entrada do CLI."""
     parser = build_parser()
@@ -119,3 +135,5 @@ def main() -> None:
         run_ingestion(dataset_name=args.dataset, config_path=args.config)
     elif args.command == "silver":
         run_silver(bronze_path=args.bronze_path, silver_path=args.silver_path)        
+    elif args.command == "gold":
+        run_gold(silver_path=args.silver_path, gold_path=args.gold_path)        

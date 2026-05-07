@@ -10,6 +10,8 @@ src/energy_data/core/exceptions.py
 src/energy_data/core/logging.py
 src/energy_data/core/utils.py
 src/energy_data/gold/__init__.py
+src/energy_data/gold/processor.py
+src/energy_data/gold/validators.py
 src/energy_data/ingestion/__init__.py
 src/energy_data/ingestion/models.py
 src/energy_data/ingestion/orchestrator.py
@@ -25,6 +27,15 @@ src/energy_data/ingestion/writers/__init__.py
 src/energy_data/ingestion/writers/local.py
 src/energy_data/ingestion/writers/parquet_writer.py
 src/energy_data/silver/__init__.py
+src/energy_data/silver/processor.py
+src/energy_data/silver/transformations.py
+src/energy_data/silver/validators.py
+src/energy_data/silver/writer.py
+src/energy_data/silver/transformations/business_rules.py
+src/energy_data/silver/transformations/cast_types.py
+src/energy_data/silver/transformations/clean_columns.py
+src/energy_data/silver/transformations/enrichments.py
+src/energy_data/silver/validators/quality.py
 src/energy_data_project.egg-info/PKG-INFO
 src/energy_data_project.egg-info/SOURCES.txt
 src/energy_data_project.egg-info/dependency_links.txt
