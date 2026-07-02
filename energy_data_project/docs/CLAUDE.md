@@ -75,9 +75,14 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Requer **Java 17+** instalado (necessário para PySpark):
+Requer **Java 21** instalado (versão suportada pelo PySpark 4.x):
 ```bash
-brew install openjdk@17  # macOS
+brew install openjdk@21  # macOS
+```
+
+Ao rodar testes ou o pipeline, exportar `JAVA_HOME` apontando para Java 21:
+```bash
+export JAVA_HOME=/usr/local/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 ```
 
 ## Comandos do Pipeline
