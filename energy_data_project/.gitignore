@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+.env
 
 energy_data_project/data/raw/
 energy_data_project/data/bronze/
