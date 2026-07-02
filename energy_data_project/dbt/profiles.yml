@@ -1,0 +1,8 @@
+modern_energy_lakehouse:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('GOLD_DB_PATH', '../data/gold/lakehouse.duckdb') }}"
+      extensions:
+        - delta

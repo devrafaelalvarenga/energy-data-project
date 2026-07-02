@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: gold_indicadores
+    description: "Modelo analítico Gold com DEC e FEC por distribuidora, conjunto e período."
+    columns:
+      - name: sigla_agente
+        description: "Sigla da distribuidora (ex: CEMIG-D)"
+        tests:
+          - not_null
+      - name: ano
+        description: "Ano de referência"
+        tests:
+          - not_null
+      - name: mes
+        description: "Mês de referência (1–12)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      - name: dec
+        description: "Duração Equivalente de Interrupção por Unidade Consumidora (horas)"
+        tests:
+          - not_null
+      - name: fec
+        description: "Frequência Equivalente de Interrupção por Unidade Consumidora (vezes)"
+        tests:
+          - not_null
+      - name: ano_mes
+        description: "Chave inteira YYYYMM para ordenação"
+        tests:
+          - not_null
+      - name: data_referencia
+        description: "Primeiro dia do mês de referência"
+        tests:
+          - not_null

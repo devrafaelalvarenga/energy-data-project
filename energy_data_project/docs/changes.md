@@ -1,58 +1,74 @@
-# Changelog — Energy Data Project
+# Changelog — Modern Energy Lakehouse
 
 Todas as mudanças relevantes do projeto são documentadas aqui.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/).
 
 ---
 
+## [0.3.0] — 2026-07-02 — `sprint4 / modern-energy-lakehouse`
+
+### Adicionado
+- **Pacote `src/lakehouse/`**: reescrita limpa substituindo `src/energy_data/`. Novo nome reflete o projeto Modern Energy Lakehouse.
+- **`core/spark.py`**: factory `get_spark()` que cria SparkSession em modo local com Delta Lake configurado (`delta-spark 3.2.0`, extensão DeltaSparkSessionExtension, DeltaCatalog).
+- **`ingestion/readers/csv_reader.py`**: `SparkCsvReader` — lê CSV via `spark.read.csv` com header, sep e encoding configuráveis.
+- **`ingestion/writers/delta_writer.py`**: `DeltaWriter` — escreve Spark DataFrame como Delta Lake com `mode("overwrite")` e `overwriteSchema=true`.
+- **`bronze/processor.py`**: `BronzeProcessor` — ponto de entrada da camada Bronze, compõe SparkSession + orquestrador.
+- **`silver/transformations.py`**: 5 funções reescritas com PySpark Column API: `normalize_columns`, `clean_strings`, `cast_types`, `enrich`, `drop_invalid_rows`.
+- **`silver/processor.py`**: `SilverProcessor` reescrito com PySpark; lê Bronze Delta, aplica transformações, valida e escreve Silver Delta.
+- **`dbt/`**: projeto DBT completo com `dbt-duckdb`:
+  - `dbt_project.yml` — configuração do projeto
+  - `profiles.yml` — perfil DuckDB com extensão `delta`
+  - `models/gold/gold_indicadores.sql` — pivot DEC/FEC via `delta_scan` + SQL PIVOT
+  - `models/gold/schema.yml` — testes `not_null` e `accepted_values`
+- **`app/dashboard.py`**: atualizado para ler de `data/gold/lakehouse.duckdb` via `duckdb.connect`. Remove dependência de Polars e parquet no dashboard.
+- **`.github/workflows/ci.yml`**: CI com setup Java 17 + Python 3.11, ruff, mypy, pytest com cobertura.
+- **`.github/workflows/pipeline.yml`**: pipeline manual (workflow_dispatch) executando ingest → silver → dbt run → dbt test.
+- **`tests/unit/test_silver_transformations.py`**: 5 testes das transformações Silver com PySpark local.
+- **`tests/unit/test_bronze_transformations.py`**: 2 testes de enriquecimento técnico Bronze.
+
+### Alterado
+- **`pyproject.toml`**: nome `modern-energy-lakehouse` v0.3.0; dependências trocadas: remove `polars`, adiciona `pyspark`, `delta-spark`, `duckdb`, `dbt-core`, `dbt-duckdb`, `streamlit`; entry point renomeado para `lakehouse`.
+- **`src/lakehouse/cli.py`**: subcomando `gold` agora executa `dbt run` via subprocess. Subcomandos `ingest` e `silver` delegam para `BronzeProcessor` e `SilverProcessor`.
+- **`core/exceptions.py`**: exceção base renomeada de `ProjectError` para `LakehouseError`.
+- **`configs/datasets.yml`**: compatível com o novo stack sem alterações na estrutura.
+
+### Removido
+- **`src/energy_data/`**: pacote inteiro removido após migração.
+- **`gold/processor.py`** (Polars): substituído por `dbt/models/gold/gold_indicadores.sql`.
+- **`gold/validators.py`** (Polars): tinha bug (comparava nomes maiúsculos vs minúsculos); substituído por DBT tests.
+- **`silver/transformations/`** sub-pacote: dead code (não era importado em lugar nenhum).
+- **`silver/writer.py`** (Polars): substituído por `DeltaWriter`.
+- **`bronze/contracts.py`**: stub vazio removido.
+
+---
+
 ## [0.2.0] — 2026-05-07 — `sprint3`
 
 ### Adicionado
-- **Camada Gold** (`src/energy_data/gold/processor.py`): transforma Silver em modelo analítico com pivot de DEC/FEC, gerando colunas `dec` e `fec` por `(sigla_agente, id_conjunto, nome_conjunto, ano, mes)`. Cria `ano_mes` e `data_referencia`.
-- **Validadores Gold** (`src/energy_data/gold/validators.py`): checagens de colunas obrigatórias e tipos na camada Gold.
-- **Dashboard Streamlit** (`app/dashboard.py`): visualização interativa da camada Gold com série temporal, ranking por distribuidora, histograma e tabela de preview. Filtros por distribuidora, ano e conjunto via sidebar.
-- **Subcomandos CLI** `silver` e `gold`: CLI agora expõe os três estágios do pipeline como subcomandos (`ingest`, `silver`, `gold`) com argumentos de path configuráveis.
-- **Testes Gold**: `tests/gold/test_gold_processor.py` e `tests/gold/test_gold_validators.py`.
+- Camada Gold (`GoldProcessor`): pivot DEC/FEC, modelo analítico por conjunto/período (Polars)
+- Dashboard Streamlit (`app/dashboard.py`): série temporal, ranking, histograma, filtros
+- CLI estendido com subcomandos `silver` e `gold`
+- Testes Gold: `test_gold_processor.py`, `test_gold_validators.py`
+- README expandido
 
 ### Alterado
-- `src/energy_data/cli.py`: adicionados subcomandos `silver` e `gold`; funções `run_silver` e `run_gold` extraídas como helpers.
-- `README.md`: expandido com instruções completas de execução de cada camada, dashboard e testes.
-- `.gitignore`: atualizado com padrões adicionais.
+- `src/energy_data/cli.py`: adicionados subcomandos `silver` e `gold`
 
 ---
 
 ## [0.1.0] — 2026-03-24 — `add files energy data project`
 
 ### Adicionado
-- **Estrutura do projeto**: `src/` layout, `pyproject.toml` com entry point `energy-data`, dependências (Polars, Pydantic, PyYAML, requests, structlog).
-- **Core** (`src/energy_data/core/`):
-  - `config.py`: modelos Pydantic (`DatasetConfig`, `AppConfig`) e `load_config()` para `configs/datasets.yml`
-  - `exceptions.py`: hierarquia `ProjectError → ConfigurationError / IngestionError / ValidationError`
-  - `logging.py`: setup de `structlog` com log estruturado em JSON
-  - `utils.py`: `sha256_bytes()` para fingerprinting de arquivos
-- **Ingestão Bronze** (`src/energy_data/ingestion/`):
-  - `HttpFetcher`: download via `requests` com timeout e tratamento de erro HTTP
-  - `CsvReader`: leitura de CSV em memória com Polars, suporte a encoding e separador configuráveis
-  - `LocalFileWriter`: escrita de bytes no filesystem, criando diretórios intermediários
-  - `ParquetWriter`: escrita de `pl.DataFrame` em parquet via PyArrow
-  - `IngestionOrchestrator`: compõe todos os componentes e executa o fluxo ponta a ponta
-  - `validate_not_empty`, `validate_required_columns`: validações mínimas pós-parse
-  - `save_metadata()`: persiste JSON de auditoria em `data/audit/`
-  - `IngestionMetadata`: modelo Pydantic do registro de auditoria
-- **Silver** (`src/energy_data/silver/`):
-  - `transformations.py`: `normalize_columns`, `clean_strings`, `cast_types`, `enrich`, `drop_invalid_rows`
-  - `validators.py`: `validate_silver()` com 5 regras de qualidade
-  - `SilverProcessor`: orquestra as transformações e validações
-  - `SilverWriter`: escreve parquet Silver
-- **Bronze contracts**: `src/energy_data/bronze/contracts.py` (placeholder para validações de schema Bronze)
-- **CLI** (`src/energy_data/cli.py`): subcomando `ingest` com `--dataset` e `--config`
-- **Configuração** (`configs/datasets.yml`): dataset `indicadores_aneel` com URL, opções CSV e paths de saída
-- **Testes**: estrutura de diretórios `tests/unit/`, `tests/integration/`, `tests/data_quality/`; `test_config.py`
-- **bootstrap_project.py**: script de scaffolding do projeto
+- Estrutura completa do projeto: `src/` layout, `pyproject.toml`, entry point `energy-data`
+- Core: `config.py` (Pydantic), `exceptions.py`, `logging.py` (structlog), `utils.py`
+- Ingestão Bronze: `HttpFetcher`, `CsvReader` (Polars), `LocalFileWriter`, `ParquetWriter`, `IngestionOrchestrator`
+- Silver: `SilverProcessor`, `transformations.py`, `validators.py`, `SilverWriter` (Polars)
+- `configs/datasets.yml` com dataset `indicadores_aneel`
+- Testes: `test_config.py`
 
 ---
 
 ## [0.0.1] — 2026-03-23 — `first commit`
 
 ### Adicionado
-- Repositório inicializado com `README.md` vazio.
+- Repositório inicializado com README vazio.
