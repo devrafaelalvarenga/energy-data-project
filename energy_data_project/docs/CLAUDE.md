@@ -11,9 +11,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 |Arquivo |Descrição |Atualizado em|
 |----------------------------|--------------------------------------------------------|-------------|
-|`docs/ARQUITETURA.md` |Estrutura de tabelas, funções, triggers e fluxo de dados|— |
-|`docs/ROADMAP.md` |Tarefas pendentes, em andamento e concluídas |— |
-|`docs/CHANGES.md` |Changelog de todas as alterações relevantes |— |
+|`docs/ARQUITETURA.md` |Estrutura de tabelas, funções, triggers e fluxo de dados|02/07/2026 às 00h19 BRT|
+|`docs/ROADMAP.md` |Tarefas pendentes, em andamento e concluídas |02/07/2026 às 00h19 BRT|
+|`docs/CHANGES.md` |Changelog de todas as alterações relevantes |02/07/2026 às 00h19 BRT|
 |`docs/integracoes/README.md`|Índice de todas as integrações externas documentadas |— |
 
 > Regra: toda vez que um arquivo acima for alterado, atualizar imediatamente o campo “Atualizado em” com a data e hora no fuso BRT (ex: `20/03/2025 às 14h32 BRT`).
