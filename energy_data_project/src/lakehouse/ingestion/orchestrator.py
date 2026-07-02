@@ -38,10 +38,10 @@ class IngestionOrchestrator:
         file_hash = sha256_bytes(content)
 
         raw_path = Path(dataset.raw_path) / "source_file.csv"
-        self.raw_writer.write_bytes(content=content, path=raw_path)
+        actual_path = self.raw_writer.write_bytes(content=content, path=raw_path)
 
         df = self.reader.read(
-            path=str(raw_path),
+            path=str(actual_path),
             separator=dataset.csv_options.separator,
             encoding=dataset.csv_options.encoding,
         )
@@ -68,7 +68,7 @@ class IngestionOrchestrator:
             file_hash=file_hash,
             row_count=row_count,
             column_count=col_count,
-            raw_path=str(raw_path),
+            raw_path=str(actual_path),
             bronze_path=bronze_path,
         )
 

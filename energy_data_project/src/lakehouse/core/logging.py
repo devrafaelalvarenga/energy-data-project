@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import logging
+import sys
 
 import structlog
 
 
 def setup_logging() -> None:
+    logging.basicConfig(
+        format="%(message)s",
+        stream=sys.stdout,
+        level=logging.INFO,
+    )
     structlog.configure(
         processors=[
             structlog.stdlib.add_log_level,
@@ -15,13 +21,12 @@ def setup_logging() -> None:
             structlog.processors.format_exc_info,
             structlog.processors.JSONRenderer(),
         ],
-        wrapper_class=structlog.BoundLogger,
+        wrapper_class=structlog.stdlib.BoundLogger,
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.stdlib.LoggerFactory(),
     )
-    logging.basicConfig(level=logging.INFO)
 
 
-def get_logger(name: str) -> structlog.BoundLogger:
+def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     setup_logging()
     return structlog.get_logger(name)

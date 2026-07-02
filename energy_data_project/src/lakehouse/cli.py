@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 
 from lakehouse.core.config import load_config
@@ -26,9 +25,9 @@ def build_parser() -> argparse.ArgumentParser:
     silver_p.add_argument("--bronze-path", default="data/bronze/aneel/indicadores_aneel")
     silver_p.add_argument("--silver-path", default="data/silver/aneel/indicadores_aneel")
 
-    gold_p = subparsers.add_parser("gold", help="Executa modelos Gold via DBT + DuckDB.")
-    gold_p.add_argument("--dbt-dir", default="dbt", help="Diretório do projeto DBT.")
-    gold_p.add_argument("--select", default=None, help="Filtro de modelos DBT (ex: gold_indicadores).")
+    gold_p = subparsers.add_parser("gold", help="Processa Silver → Gold via DuckDB.")
+    gold_p.add_argument("--silver-path", default="data/silver/aneel/indicadores_aneel")
+    gold_p.add_argument("--gold-db-path", default="data/gold/lakehouse.duckdb")
 
     return parser
 
@@ -51,14 +50,11 @@ def run_silver(bronze_path: str, silver_path: str) -> None:
     print(f"Silver gerada em {silver_path}")
 
 
-def run_gold(dbt_dir: str, select: str | None) -> None:
-    cmd = ["dbt", "run"]
-    if select:
-        cmd += ["--select", select]
-    result = subprocess.run(cmd, cwd=dbt_dir)
-    if result.returncode != 0:
-        raise LakehouseError("dbt run falhou.")
-    print("Gold gerada via DBT.")
+def run_gold(silver_path: str, gold_db_path: str) -> None:
+    from lakehouse.gold.processor import GoldProcessor
+
+    row_count = GoldProcessor().run(silver_path=silver_path, gold_db_path=gold_db_path)
+    print(f"Gold gerada em {gold_db_path} — {row_count} linhas.")
 
 
 def main() -> None:
@@ -71,7 +67,7 @@ def main() -> None:
         elif args.command == "silver":
             run_silver(args.bronze_path, args.silver_path)
         elif args.command == "gold":
-            run_gold(args.dbt_dir, getattr(args, "select", None))
+            run_gold(args.silver_path, args.gold_db_path)
     except LakehouseError as exc:
         logger.error("cli.error", error=str(exc))
         print(f"Erro: {exc}", file=sys.stderr)
