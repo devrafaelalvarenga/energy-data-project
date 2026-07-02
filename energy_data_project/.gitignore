@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
+*.egg-info/
 
 energy_data_project/data/raw/
 energy_data_project/data/bronze/
