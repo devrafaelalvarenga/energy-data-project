@@ -5,10 +5,12 @@ __pycache__/
 .env
 *.egg-info/
 
-energy_data_project/data/raw/
-energy_data_project/data/bronze/
-energy_data_project/data/silver/
-energy_data_project/data/gold/
-energy_data_project/data/audit/
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/audit/
 
 *.parquet
+*.duckdb
+*.crc

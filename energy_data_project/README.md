@@ -134,6 +134,37 @@ https://dadosabertos.aneel.gov.br/dataset/d5f0712e-62f6-4736-8dff-9991f10758a7/r
 
 ---
 
+## Executando no VS Code
+
+No terminal integrado (`Ctrl+`` `), dentro de `energy_data_project/`:
+
+```bash
+source .venv/bin/activate
+export JAVA_HOME=/usr/local/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+
+lakehouse ingest --dataset indicadores_aneel
+lakehouse silver
+lakehouse gold
+streamlit run app/dashboard.py   # opcional
+```
+
+Ou tudo de uma vez:
+
+```bash
+source .venv/bin/activate && \
+export JAVA_HOME=/usr/local/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home && \
+lakehouse ingest --dataset indicadores_aneel && \
+lakehouse silver && \
+lakehouse gold
+```
+
+> Para não precisar exportar `JAVA_HOME` toda vez, adicione ao `~/.zshrc`:
+> ```bash
+> export JAVA_HOME=/usr/local/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+> ```
+
+---
+
 ## Autor
 
 Rafael Alvarenga
